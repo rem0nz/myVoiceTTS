@@ -1,0 +1,5 @@
+# RVC weights and FAISS indexes are 50-75 MB binaries. Git LFS keeps them out
+# of the packfile history, which plain git would grow permanently per revision.
+*.pth  filter=lfs diff=lfs merge=lfs -text
+*.index filter=lfs diff=lfs merge=lfs -text
+*.pt   filter=lfs diff=lfs merge=lfs -text

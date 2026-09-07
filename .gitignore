@@ -1,0 +1,26 @@
+# --- environment ---
+.venv/
+__pycache__/
+*.pyc
+.inspect/
+.scratch/
+.fbtest/
+
+# --- generated output ---
+out/
+datasets/
+voices/
+
+# --- models ---
+# Base models are fetched by `python -m voicelab.setup_assets`, not committed.
+# rmvpe.pt is 173 MB, over GitHub's hard 100 MB per-file limit anyway.
+models/rvc/_base/
+models/tts/
+
+# Trained voice models are NOT published from this repo -- neither the owner's
+# own voice nor anyone else's. They stay on the machine that trained them.
+# Users supply their own model through the web UI.
+models/rvc/
+
+# Bundles are transient
+out/.bundle/

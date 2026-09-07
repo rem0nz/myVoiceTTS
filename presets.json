@@ -1,0 +1,17 @@
+{
+  "presets": {
+    "Deep British": {
+      "engine": "kokoro",
+      "f0_method": "rmvpe",
+      "index_rate": 0.66,
+      "pitch": -5,
+      "protect": 0.33,
+      "rvc_model": "",
+      "saved_at": "2026-09-06T13:09:32+00:00",
+      "speed": 0.8,
+      "text": "",
+      "voice": "bm_george"
+    }
+  },
+  "version": 1
+}

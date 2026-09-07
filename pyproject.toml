@@ -1,0 +1,37 @@
+[project]
+name = "voicelab"
+version = "0.1.0"
+description = "Local voice synthesis + conversion workbench (TTS -> RVC pipeline)"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "numpy>=1.24,<2.3",
+    "soundfile>=0.12",
+    "typer>=0.12",
+    "rich>=13.7",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Each engine is isolated. Install only what you need -- disk is the constraint.
+kokoro     = ["kokoro>=0.9", "torch>=2.4", "soundfile"]          # ~2.9 GB w/ torch. Apache-2.0, no cloning.
+piper      = ["piper-tts>=1.2"]                                   # ~120 MB. ONNX/CPU, no torch.
+f5         = ["f5-tts>=1.0", "torch>=2.4", "torchaudio"]          # ~4.5 GB. Zero-shot cloning.
+chatterbox = ["chatterbox-tts>=0.1", "torch>=2.4", "torchaudio"]  # ~4 GB. MIT, zero-shot cloning.
+# infer-rvc-python: fairseq-free (uses transformers HubertModel), unpinned
+# numpy, runs on 3.11+. Replaced rvc-python, whose fairseq==0.12.2 dep has no
+# arm64 wheel, only builds on <=3.10, and collides with torch>=2.6's
+# weights_only default. setuptools<81 is required: the transitively-resolved
+# librosa still imports pkg_resources, dropped from setuptools 81.
+rvc        = ["infer-rvc-python>=1.3.1", "setuptools<81"]
+
+web        = ["fastapi>=0.110", "uvicorn[standard]>=0.29", "python-multipart>=0.0.9"]
+
+[project.scripts]
+voicelab = "voicelab.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["voicelab"]
