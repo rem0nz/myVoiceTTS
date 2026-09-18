@@ -34,3 +34,4 @@ experiments/**/*.flac
 experiments/**/ref/
 experiments/**/checkpoints/
 experiments/**/*_out/
+.DS_Store
