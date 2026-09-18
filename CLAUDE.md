@@ -42,6 +42,7 @@ CLI:
     --rvc <model> --pitch 0 --play
 .venv/bin/python -m voicelab.cli convert in.wav --model <model> -o out.wav
 .venv/bin/python -m voicelab.cli dataset-prep ~/recordings --name myvoice
+.venv/bin/python -m voicelab.cli clone --name me --mic "Wireless Mic Rx"   # record, then type
 ```
 
 `doctor` is the first thing to run when anything looks wrong. It reports each
@@ -74,6 +75,7 @@ voicelab/
 ├── presets.py       named settings, atomic JSON store
 ├── outputs.py       generated-audio library, zip bundling, path hardening
 ├── dataset.py       raw recordings → training clips
+├── clone.py         interactive record-a-reference → type → speak loop (F5)
 ├── server.py        FastAPI
 ├── cli.py           typer CLI
 ├── setup_assets.py  downloads rmvpe.pt
@@ -83,6 +85,7 @@ voicelab/
     ├── system.py    macOS `say`   — no install, the sanity baseline
     ├── kokoro.py    Kokoro-82M    [kokoro]
     ├── piper.py     Piper ONNX    [piper]
+    ├── f5.py        F5-TTS zero-shot cloning from voices/<name>/ref.wav [f5]
     └── rvc.py       RVC v2        [rvc]
 ```
 
@@ -197,6 +200,17 @@ installed. If none is present, say the conversion path is unverified rather
 than implying it was tested.
 
 ## Gotchas that waste time
+
+- **Don't record with ffmpeg's avfoundation input.** It mislabels 24-bit USB
+  receivers (e.g. `Wireless Mic Rx`) as `pcm_s24le`, logs "Invalid PCM packet"
+  per frame and writes a file of exact zeros. `clone.py` uses PortAudio via
+  `sounddevice` for that reason. Exact digital silence from a mic that opens
+  fine is the transmitter being off, not a permission problem — permission
+  denial on macOS also yields zeros, so compare against the built-in mic.
+- **F5 needs the reference transcript.** `voices/<name>/ref.txt` must hold
+  the exact words in `ref.wav`. With an empty transcript F5 runs Whisper
+  (1.5 GB download, slow on 8 GB RAM). `clone` avoids that by having the user
+  read a fixed sentence.
 
 - **`say`-engine voice names** contain a locale in parens in `voices()` output
   (`Daniel  (en_GB)`); the CLI/API want just `Daniel`. The frontend splits on

@@ -17,6 +17,7 @@ from . import dataset
 from .config import (OUT, RVC_MODELS, SAMPLE_RATE, TTS_MODELS,
                      free_disk_gb, have, torch_device)
 from .engines.base import Audio, Engine, TTSEngine
+from .engines.f5 import F5Engine
 from .engines.kokoro import KokoroEngine
 from .engines.piper import PiperEngine
 from .engines.system import SystemEngine
@@ -31,7 +32,7 @@ RVC_INSTALL_HINT = "install the rvc extra first: uv pip install -e '.[rvc]'"
 def _engines() -> dict[str, Engine]:
     """name -> engine instance, for everything importable on this machine."""
     registry: dict[str, Engine] = {}
-    for cls in (SystemEngine, KokoroEngine, PiperEngine):
+    for cls in (SystemEngine, KokoroEngine, F5Engine, PiperEngine):
         inst = cls()
         registry[inst.name] = inst
     try:
@@ -223,6 +224,35 @@ def convert(
         console.print(f"[red]could not write {out}: {e}[/red]")
         raise typer.Exit(1)
     console.print(f"[green]{out}[/green]  ({result.duration:.2f}s)")
+
+
+@app.command()
+def clone(
+    name: str = typer.Option("me", "--name", help="Name to save the voice under (voices/<name>/)."),
+    mic: str | None = typer.Option(
+        None, "--mic", help="Input device name substring, e.g. 'Wireless Mic Rx'. Default: system input."),
+    reuse: bool = typer.Option(
+        False, "--reuse", help="Skip recording if voices/<name>/ref.wav already exists."),
+    speed: float = typer.Option(1.0, "--speed", help="Speaking-rate multiplier."),
+    nfe: int = typer.Option(
+        16, "--nfe", help="F5 diffusion steps. 16 is ~2x faster than 32 (the quality default); use 32 for a final take."),
+) -> None:
+    """Record your voice from a mic, then type lines and hear them in that voice (F5-TTS)."""
+    from . import clone as clone_session
+    clone_session.run(name=name, mic=mic, reuse=reuse, speed=speed, nfe=nfe)
+
+
+@app.command("mics")
+def mics() -> None:
+    """List audio input devices usable by `clone --mic`."""
+    try:
+        from .clone import input_devices
+        devs = input_devices()
+    except ImportError:
+        console.print("[red]sounddevice missing - uv pip install -e '.[clone]'[/red]")
+        raise typer.Exit(1)
+    for idx, dev_name, ch in devs:
+        console.print(f"  [{idx}] {escape(dev_name)}  ({ch} ch)")
 
 
 @app.command("dataset-prep")
