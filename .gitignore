@@ -24,3 +24,13 @@ models/rvc/
 
 # Bundles are transient
 out/.bundle/
+
+# Experiment artifacts: never publish voice audio or model weights.
+# A reference clip + its transcript is a ready-made cloning kit for that person.
+experiments/**/*.wav
+experiments/**/*.aiff
+experiments/**/*.mp3
+experiments/**/*.flac
+experiments/**/ref/
+experiments/**/checkpoints/
+experiments/**/*_out/
