@@ -157,6 +157,20 @@ reads those, writes `models/rvc/<name>/voicelab.json`, and warns you about:
 A `.pth` is a pickle; without that flag a malicious checkpoint executes
 arbitrary code on load. Don't relax it.
 
+## Cloning without training (F5-TTS)
+
+```bash
+uv pip install -e ".[f5,clone]"
+.venv/bin/python -m voicelab.cli mics                       # find your input device
+.venv/bin/python -m voicelab.cli clone --name me --mic "Wireless Mic Rx"
+```
+
+`clone` records you reading one sentence (5-10 s), saves it as
+`voices/me/ref.wav` + `ref.txt`, then loops: type a line, hear it in your voice.
+Afterwards the voice is available everywhere as `--engine f5 --voice me`, and in
+the web UI's voice picker. Quality is below a trained RVC model but there is no
+training step. F5 weights are CC-BY-NC.
+
 ## Training your own
 
 ```bash
