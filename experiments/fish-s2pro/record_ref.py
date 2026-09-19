@@ -16,7 +16,9 @@ SCRIPT = (
     "chasing pigeons near the fountain."
 )
 OUT = Path("ref"); OUT.mkdir(exist_ok=True)
-name = sys.argv[1] if len(sys.argv) > 1 else "me"
+# Positional name only; flags must not be mistaken for it
+_pos = [a for a in sys.argv[1:] if not a.startswith("--")]
+name = _pos[0] if _pos else "me"
 
 if "--list" in sys.argv:
     for i, d in enumerate(sd.query_devices()):
